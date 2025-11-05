@@ -13,7 +13,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <sonar.crypto.plugin.version>1.4.7</sonar.crypto.plugin.version>
+        <sonar.crypto.plugin.version>2.0.0-SNAPSHOT</sonar.crypto.plugin.version>
         <sonar.plugin.api.version>13.0.0.3026</sonar.plugin.api.version>
         <sonar.plugin.api.impl.version>25.8.0.112029</sonar.plugin.api.impl.version>
 
@@ -24,7 +24,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/PQCA/sonar-cryptography</url>
+            <url>https://maven.pkg.github.com/sonar-cryptography</url>
         </repository>
     </repositories>
 
@@ -227,8 +227,8 @@
     <distributionManagement>
         <repository>
             <id>github</id>
-            <name>GitHub PQCA Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/PQCA/cbomkit-lib</url>
+            <name>GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/cbomkit/cbomkit-lib</url>
         </repository>
     </distributionManagement>
 </project>

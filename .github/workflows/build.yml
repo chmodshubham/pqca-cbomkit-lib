@@ -21,11 +21,6 @@ on:
     types: [ "published" ]
   workflow_dispatch:
 
-env:
-  REGISTRY: "ghcr.io"
-  ORG: "PQCA"
-  IMAGE_NAME: "cbomkit"
-
 jobs:
   build:
     runs-on: ubuntu-latest
