@@ -24,7 +24,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/PQCA/sonar-cryptography</url>
+            <url>https://maven.pkg.github.com/cbomkit/sonar-cryptography</url>
         </repository>
     </repositories>
 
@@ -227,8 +227,8 @@
     <distributionManagement>
         <repository>
             <id>github</id>
-            <name>GitHub PQCA Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/PQCA/cbomkit-lib</url>
+            <name>GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/cbomkit/cbomkit-lib</url>
         </repository>
     </distributionManagement>
 </project>
