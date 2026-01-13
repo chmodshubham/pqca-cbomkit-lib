@@ -23,7 +23,7 @@
 
     <repositories>
         <repository>
-            <id>github</id>
+            <id>github-sonar</id>
             <url>https://maven.pkg.github.com/chmodshubham/pqca-sonar-cryptography</url>
         </repository>
     </repositories>

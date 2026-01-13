@@ -56,6 +56,11 @@ jobs:
                 <password>${{ secrets.GITHUB_TOKEN }}</password>
               </server>
               <server>
+                <id>github-sonar</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+              <server>
                 <id>app-bootstrap</id>
                 <username>${{ github.actor }}</username>
                 <password>${{ secrets.GITHUB_TOKEN }}</password>
