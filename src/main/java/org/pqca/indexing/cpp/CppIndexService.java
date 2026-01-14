@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * */
-package org.pqca.indexing.python;
+package org.pqca.indexing.cpp;
 
 import jakarta.annotation.Nonnull;
 import java.io.File;
@@ -27,21 +27,25 @@ import org.pqca.indexing.IBuildType;
 import org.pqca.indexing.IndexingService;
 import org.pqca.progress.IProgressDispatcher;
 
-public final class PythonIndexService extends IndexingService {
+public final class CppIndexService extends IndexingService {
 
-    public PythonIndexService(@Nonnull File baseDirectory) {
+    public CppIndexService(@Nonnull File baseDirectory) {
         this(null, baseDirectory);
     }
 
-    public PythonIndexService(
+    public CppIndexService(
             @Nullable IProgressDispatcher progressDispatcher, @Nonnull File baseDirectory) {
-        super(progressDispatcher, baseDirectory, "python", List.of(".py"));
+        super(
+                progressDispatcher,
+                baseDirectory,
+                "cpp",
+                List.of(".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx"));
         this.setExcludePatterns(null);
     }
 
     public void setExcludePatterns(@Nullable List<String> patterns) {
         if (patterns == null) {
-            super.setExcludePatterns(List.of("src/test/", "tests/"));
+            super.setExcludePatterns(List.of("test/"));
         } else {
             super.setExcludePatterns(patterns);
         }
@@ -49,31 +53,30 @@ public final class PythonIndexService extends IndexingService {
 
     @Override
     public boolean isModule(@Nonnull File directory) {
-        for (String builFileName : List.of("pyproject.toml", "setup.cfg", "setup.py")) {
-            File f = new File(directory, builFileName);
-            if (f.exists() && f.isFile()) {
+        if (!directory.isDirectory()) {
+            return false;
+        }
+        for (String buildFileName : List.of("CMakeLists.txt", "Makefile")) {
+            final File file = new File(directory, buildFileName);
+            if (file.exists() && file.isFile()) {
                 return true;
             }
         }
         return false;
     }
 
-    @Nullable @Override
-    public IBuildType getMainBuildTypeFromModuleDirectory(@Nonnull File directory) {
+    @Override
+    @Nullable public IBuildType getMainBuildTypeFromModuleDirectory(@Nonnull File directory) {
         if (!directory.isDirectory()) {
             return null;
         }
-        // toml
-        final File tomlFile = new File(directory, "pyproject.toml");
-        if (tomlFile.exists() && tomlFile.isFile()) {
-            return PythonBuildType.TOML;
+        final File cmakeFile = new File(directory, "CMakeLists.txt");
+        if (cmakeFile.exists() && cmakeFile.isFile()) {
+            return CppBuildType.CMAKE;
         }
-        // setup
-        for (String setupFileName : List.of("setup.cfg", "setup.py")) {
-            final File setupFile = new File(directory, setupFileName);
-            if (setupFile.exists() && setupFile.isFile()) {
-                return PythonBuildType.SETUP;
-            }
+        final File makefile = new File(directory, "Makefile");
+        if (makefile.exists() && makefile.isFile()) {
+            return CppBuildType.MAKE;
         }
         return null;
     }

@@ -35,7 +35,7 @@ public final class JavaIndexService extends IndexingService {
 
     public JavaIndexService(
             @Nullable IProgressDispatcher progressDispatcher, @Nonnull File baseDirectory) {
-        super(progressDispatcher, baseDirectory, "java", ".java");
+        super(progressDispatcher, baseDirectory, "java", List.of(".java"));
         this.setExcludePatterns(null);
     }
 

@@ -47,7 +47,7 @@ public abstract class IndexingService {
 
     @Nullable private final IProgressDispatcher progressDispatcher;
     @Nonnull private final String languageIdentifier;
-    @Nonnull private final String languageFileExtension;
+    @Nonnull private final List<String> languageFileExtensions;
     @Nonnull private File baseDirectory;
     @Nullable private IBuildType mainBuildType;
 
@@ -56,19 +56,19 @@ public abstract class IndexingService {
     protected IndexingService(
             @Nonnull File baseDirectory,
             @Nonnull String languageIdentifier,
-            @Nonnull String languageFileExtension) {
-        this(null, baseDirectory, languageIdentifier, languageFileExtension);
+            @Nonnull List<String> languageFileExtensions) {
+        this(null, baseDirectory, languageIdentifier, languageFileExtensions);
     }
 
     protected IndexingService(
             @Nonnull IProgressDispatcher progressDispatcher,
             @Nonnull File baseDirectory,
             @Nonnull String languageIdentifier,
-            @Nonnull String languageFileExtension) {
+            @Nonnull List<String> languageFileExtensions) {
         this.progressDispatcher = progressDispatcher;
         this.baseDirectory = baseDirectory;
         this.languageIdentifier = languageIdentifier;
-        this.languageFileExtension = languageFileExtension;
+        this.languageFileExtensions = languageFileExtensions;
     }
 
     public void setExcludePatterns(@Nonnull List<String> excludePatterns) {
@@ -143,7 +143,7 @@ public abstract class IndexingService {
                                         + "' ["
                                         + files.size()
                                         + " "
-                                        + languageFileExtension
+                                        + languageFileExtensions
                                         + " files]"));
             }
             LOGGER.info(
@@ -152,7 +152,7 @@ public abstract class IndexingService {
                             + "' ["
                             + files.size()
                             + " "
-                            + languageFileExtension
+                            + languageFileExtensions
                             + " files]");
             projectModules.add(
                     new ProjectModule(projectIdentifier, projectDirectory.toPath(), files));
@@ -178,7 +178,7 @@ public abstract class IndexingService {
                 }
                 continue;
             }
-            if (file.getName().endsWith(this.languageFileExtension)
+            if (this.languageFileExtensions.stream().anyMatch(ext -> file.getName().endsWith(ext))
                     && !this.excludeFromIndexing(file)) {
                 try {
                     final TestInputFileBuilder builder =
