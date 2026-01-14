@@ -6,11 +6,12 @@
 
     <groupId>org.pqca</groupId>
     <artifactId>cbomkit-lib</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <sonar.crypto.plugin.version>2.0.0-SNAPSHOT</sonar.crypto.plugin.version>
@@ -18,7 +19,7 @@
         <sonar.plugin.api.impl.version>25.9.0.112764</sonar.plugin.api.impl.version>
 
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
-        <google-java-format.version>1.25.2</google-java-format.version>
+        <google-java-format.version>1.28.0</google-java-format.version>
     </properties>
 
     <repositories>
@@ -101,13 +102,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.14.1</version>
             </plugin>
 
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.46.1</version>
+                <version>3.0.0</version>
                 <configuration>
                     <java>
                         <includes>
@@ -140,7 +141,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */</content>  <!-- or <file>${project.basedir}/license-header</file> -->
+ * */</content>  <!-- or <file>${project.basedir}/license-header</file> -->
                         </licenseHeader>
                     </java>
                 </configuration>
@@ -194,7 +195,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>11.0.0</version>
+                        <version>11.0.1</version>
                     </dependency>
                 </dependencies>
                 <executions>
