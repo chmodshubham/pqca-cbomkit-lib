@@ -41,7 +41,7 @@ class PythonIndexServiceTest {
         pythonIndexService.setExcludePatterns(List.of());
         final List<ProjectModule> projectModules = pythonIndexService.index(null);
         assertThat(projectModules).hasSize(1);
-        final ProjectModule projectModule = projectModules.getFirst();
+        final ProjectModule projectModule = projectModules.get(0);
         assertThat(projectModule.inputFileList()).hasSize(1);
     }
 }

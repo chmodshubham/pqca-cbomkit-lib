@@ -58,7 +58,7 @@ class JavaIndexServiceTest {
                 new JavaIndexService(new File("src/test/testdata/java/plain"));
         final List<ProjectModule> projectModules = javaIndexService.index(null);
         assertThat(projectModules).hasSize(1);
-        final ProjectModule projectModule = projectModules.getFirst();
+        final ProjectModule projectModule = projectModules.get(0);
         assertThat(projectModule.inputFileList()).hasSize(1);
     }
 
@@ -68,14 +68,14 @@ class JavaIndexServiceTest {
                 new JavaIndexService(new File("src/test/testdata/java/nested"));
         final List<ProjectModule> projectModules = javaIndexService.index(null);
         assertThat(projectModules).hasSize(2);
-        final ProjectModule projectModule1 = projectModules.getFirst();
+        final ProjectModule projectModule1 = projectModules.get(0);
         List<InputFile> inputFiles1 = projectModule1.inputFileList();
         assertThat(inputFiles1).hasSize(1);
-        assertThat(inputFiles1.getFirst().filename()).isEqualTo("JavaCryptoInModule.java");
+        assertThat(inputFiles1.get(0).filename()).isEqualTo("JavaCryptoInModule.java");
 
-        final ProjectModule projectModule2 = projectModules.getLast();
+        final ProjectModule projectModule2 = projectModules.get(projectModules.size() - 1);
         List<InputFile> inputFiles2 = projectModule2.inputFileList();
         assertThat(inputFiles2).hasSize(1);
-        assertThat(inputFiles2.getFirst().filename()).isEqualTo("JavaCrypto.java");
+        assertThat(inputFiles2.get(0).filename()).isEqualTo("JavaCrypto.java");
     }
 }

@@ -39,7 +39,7 @@ class PythonScannerServiceTest {
         final PythonIndexService pythonIndexService = new PythonIndexService(projectDirectory);
         final List<ProjectModule> projectModules = pythonIndexService.index(null);
         assertThat(projectModules).hasSize(1);
-        final ProjectModule projectModule = projectModules.getFirst();
+        final ProjectModule projectModule = projectModules.get(0);
         assertThat(projectModule.inputFileList()).hasSize(1);
         // scanning
         final PythonScannerService pythonScannerService =

@@ -48,7 +48,7 @@ public class CBOMTest {
         assertThat(metadata.getToolChoice().getServices()).isNotNull();
         assertThat(metadata.getToolChoice().getServices()).hasSize(1);
 
-        Service service = metadata.getToolChoice().getServices().getFirst();
+        Service service = metadata.getToolChoice().getServices().get(0);
         assertThat(service.getName()).isEqualTo("CBOMkit");
         assertThat(service.getProvider()).isNotNull();
         assertThat(service.getProvider().getName()).isEqualTo("PQCA");
