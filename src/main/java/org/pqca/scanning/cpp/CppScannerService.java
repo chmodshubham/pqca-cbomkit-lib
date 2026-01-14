@@ -64,6 +64,10 @@ public final class CppScannerService extends ScannerService {
 
         // Create Index
         CXIndex cxIndex = clang.clang_createIndex(0, 0);
+        if (cxIndex == null || cxIndex.isNull()) {
+            LOGGER.error("Failed to create Clang index - Clang initialization failed");
+            return new ScanResultDTO(scanTimeStart, System.currentTimeMillis(), 0, 0, null);
+        }
 
         try {
             for (ProjectModule project : index) {
@@ -103,21 +107,50 @@ public final class CppScannerService extends ScannerService {
     private void scanFile(CXIndex index, InputFile inputFile) {
         CXTranslationUnit unit = null;
         try {
+            // Critical: Add compiler flags to prevent Clang from hanging
+            // when it can't find system headers
+            String[] compilerArgs = {
+                "-x",
+                "c++", // Treat as C++ source
+                "-std=c++17", // Use C++17 standard
+                "-nostdinc", // Don't search standard system directories
+                "-nostdinc++", // Don't search standard C++ directories
+                "-w", // Suppress all warnings
+                "-ferror-limit=0", // Don't stop on errors
+                "-fsyntax-only" // Only check syntax, don't generate code
+            };
+
+            // Convert String[] to PointerPointer for JavaCPP
+            PointerPointer<BytePointer> args = new PointerPointer<>(compilerArgs.length);
+            for (int i = 0; i < compilerArgs.length; i++) {
+                args.put(i, new BytePointer(compilerArgs[i]));
+            }
+
             // We need to use BytePointer for the filename as per JavaCPP bindings
             try (BytePointer filename = new BytePointer(inputFile.absolutePath())) {
                 unit =
                         clang.clang_parseTranslationUnit(
                                 index,
                                 filename,
-                                (PointerPointer) null,
-                                0,
+                                args,
+                                compilerArgs.length,
                                 (org.bytedeco.llvm.clang.CXUnsavedFile) null,
                                 0,
-                                clang.CXTranslationUnit_None);
+                                clang.CXTranslationUnit_SkipFunctionBodies
+                                        | clang.CXTranslationUnit_KeepGoing);
             }
 
+            // Clean up argument pointers - CRITICAL: Use actual pointers, not new ones
+            for (int i = 0; i < compilerArgs.length; i++) {
+                BytePointer ptr = (BytePointer) args.get(BytePointer.class, i);
+                if (ptr != null) {
+                    ptr.deallocate();
+                }
+            }
+            args.deallocate();
+
             if (unit == null) {
-                LOGGER.error(
+                LOGGER.warn(
                         "Failed to parse translation unit for file: {}", inputFile.absolutePath());
                 return;
             }
