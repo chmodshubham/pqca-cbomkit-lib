@@ -20,11 +20,12 @@
 package org.pqca.scanning.go;
 
 import com.ibm.plugin.CryptoGoSensor;
+import com.ibm.plugin.GoAggregator;
+import com.ibm.plugin.GoScannerRuleDefinition;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.pqca.errors.ClientDisconnected;
@@ -36,17 +37,16 @@ import org.pqca.scanning.CBOM;
 import org.pqca.scanning.ScanResultDTO;
 import org.pqca.scanning.ScannerService;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.go.converter.GoConverter;
-import org.sonar.go.plugin.GoChecks;
-import org.sonar.plugins.go.api.checks.GoCheck;
 
 public final class GoScannerService extends ScannerService {
 
-    private final GoConverter goConverter;
+    private final DefaultTempFolder tempFolder;
 
     public GoScannerService(@Nonnull File projectDirectory) {
         this(null, projectDirectory);
@@ -55,10 +55,8 @@ public final class GoScannerService extends ScannerService {
     public GoScannerService(
             @Nullable IProgressDispatcher progressDispatcher, @Nonnull File projectDirectory) {
         super(progressDispatcher, projectDirectory);
-
         try {
-            DefaultTempFolder tempFolder = new DefaultTempFolder(createDirectory());
-            goConverter = new GoConverter(tempFolder.newDir());
+            tempFolder = new DefaultTempFolder(createDirectory());
         } catch (IOException ioe) {
             throw new IllegalStateException(ioe);
         }
@@ -66,7 +64,6 @@ public final class GoScannerService extends ScannerService {
 
     @Nonnull
     private File createDirectory() throws IOException {
-        // create directory
         final String folderId = UUID.randomUUID().toString().replace("-", "");
         final File tempDir = new File(this.projectDirectory + File.separator + folderId);
         if (tempDir.exists()) {
@@ -82,22 +79,20 @@ public final class GoScannerService extends ScannerService {
     public @Nonnull ScanResultDTO scan(@Nonnull List<ProjectModule> index)
             throws ClientDisconnected {
         LOGGER.info("Start scanning {} go projects", index.size());
+        GoAggregator.reset();
 
         long scanTimeStart = System.currentTimeMillis();
         int counter = 1;
         int numberOfScannedLines = 0;
         int numberOfScannedFiles = 0;
 
-        GoCheck visitor = new GoDetectionCollectionRule(this);
-        GoChecks checks = new GoRuleChecks(visitor);
         final SensorContextTester sensorContext = SensorContextTester.create(projectDirectory);
-        // Go scanner (CryptoGoSensor) reads files from context
-        index.forEach(project -> project.inputFileList().forEach(sensorContext.fileSystem()::add));
 
         for (ProjectModule project : index) {
             numberOfScannedFiles += project.inputFileList().size();
             numberOfScannedLines +=
                     project.inputFileList().stream().mapToInt(InputFile::lines).sum();
+            project.inputFileList().forEach(sensorContext.fileSystem()::add);
 
             final String projectStr =
                     project.identifier() + " (" + counter + "/" + index.size() + ")";
@@ -107,11 +102,23 @@ public final class GoScannerService extends ScannerService {
                                 ProgressMessageType.LABEL, "Scanning go project " + projectStr));
             }
             LOGGER.info("Scanning go project {}", projectStr);
-
-            CryptoGoSensor.execute((SensorContext) sensorContext, goConverter, checks);
-
             counter += 1;
         }
+
+        final var activeRules =
+                new ActiveRulesBuilder()
+                        .addRule(
+                                new NewActiveRule.Builder()
+                                        .setRuleKey(
+                                                RuleKey.of(
+                                                        GoScannerRuleDefinition.REPOSITORY_KEY,
+                                                        "Inventory"))
+                                        .build())
+                        .build();
+        final CheckFactory checkFactory = new CheckFactory(activeRules);
+        new CryptoGoSensor(checkFactory, tempFolder).execute(sensorContext);
+        this.accept(GoAggregator.getDetectedNodes());
+
         LOGGER.info("Scanned {} go projects", index.size());
 
         return new ScanResultDTO(
@@ -120,23 +127,5 @@ public final class GoScannerService extends ScannerService {
                 numberOfScannedLines,
                 numberOfScannedFiles,
                 this.getBOM().map(CBOM::new).orElse(null));
-    }
-
-    private class GoRuleChecks extends GoChecks {
-        private final List<GoCheck> checks = new ArrayList<>();
-
-        public GoRuleChecks(GoCheck check) {
-            super(null);
-            checks.add(check);
-        }
-
-        public List<GoCheck> all() {
-            return this.checks;
-        }
-
-        @SuppressWarnings("null")
-        public RuleKey ruleKey(GoCheck check) {
-            return RuleKey.of("sonar-cryptography", "go-rule");
-        }
     }
 }

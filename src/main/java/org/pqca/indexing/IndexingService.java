@@ -61,7 +61,7 @@ public abstract class IndexingService {
     }
 
     protected IndexingService(
-            @Nonnull IProgressDispatcher progressDispatcher,
+            @Nullable IProgressDispatcher progressDispatcher,
             @Nonnull File baseDirectory,
             @Nonnull String languageIdentifier,
             @Nonnull String languageFileExtension) {
@@ -143,7 +143,7 @@ public abstract class IndexingService {
                                         + "' ["
                                         + files.size()
                                         + " "
-                                        + languageFileExtension
+                                        + languageIdentifier
                                         + " files]"));
             }
             LOGGER.info(
@@ -152,7 +152,7 @@ public abstract class IndexingService {
                             + "' ["
                             + files.size()
                             + " "
-                            + languageFileExtension
+                            + languageIdentifier
                             + " files]");
             projectModules.add(
                     new ProjectModule(projectIdentifier, projectDirectory.toPath(), files));

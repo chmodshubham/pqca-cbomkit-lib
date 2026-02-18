@@ -14,11 +14,11 @@ permissions:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   release:
-    types: [ "published" ]
+    types: ["published"]
   workflow_dispatch:
 
 jobs:
@@ -44,8 +44,9 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
       - name: Create Maven settings.xml
         run: |
           echo "<settings>
@@ -68,10 +69,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create CBOM
         uses: cbomkit/cbomkit-action@v2.2.0
-        id: cbom
+        id:
+          cbom
           # Persist CBOM after a job has completed and share
           # that CBOM with another job in the same workflow.
-      - name: Commit changes to new branch
+      - name: Upload CBOM Artifact
         uses: actions/upload-artifact@v7
         with:
           name: "CBOM"
