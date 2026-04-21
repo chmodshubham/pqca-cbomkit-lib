@@ -1,6 +1,6 @@
 /*
  * CBOMkit-lib
- * Copyright (C) 2024 PQCA
+ * Copyright (C) 2026 PQCA
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,11 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.pqca.scanning;
+package org.pqca.indexing.csharp;
 
-public enum Language {
-    JAVA,
-    PYTHON,
-    GO,
-    CSHARP
+import org.pqca.indexing.IBuildType;
+
+public enum CsharpBuildType implements IBuildType {
+    DOTNET,
+    SOLUTION
 }
